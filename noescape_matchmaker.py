@@ -24,9 +24,9 @@ for i in range(20):
     data = sock.recv(8 + 2*num_attr)
     print "Score: ", float(data[0:7])
     orig_scores.append(float(data[0:7]))
-    orig_candidates.append(map(int, data[8:].split(',')))
+    orig_candidates.append(np.array(map(int, data[8:].split(',')))
     opp_scores.append(-1 * float(data[0:7]))
-    opp_candidates.append([(x+1)%2 for x in map(int, data[8:].split(','))])
+    opp_candidates.append(np.array([(x+1)%2 for x in map(int, data[8:].split(','))]))
     assert data[-1] == '\n'
 
 print min([abs(y) for y in orig_scores])
