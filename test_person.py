@@ -33,7 +33,94 @@ num_string = sock.recv(4)
 assert num_string.endswith('\n')
 
 num_attr = int(num_string[:-1])
-initial_weights = get_valid_weights(num_attr)
+
+import random
+import numpy as np 
+
+pos_hold = []
+neg_hold = []
+
+#num_attr = 60
+
+golden = 1/((1 + 5 ** 0.5) / 2)
+
+#use golden ratio for number of positive values
+
+pos_num = int(golden * num_attr)
+neg_num = num_attr - pos_num
+
+initial_pos_num = round(1.0/pos_num,2)
+initial_neg_num = -1 * round(1.0/neg_num,2)
+float(str(initial_pos_num)[:4])
+max_change_pos = round(initial_pos_num * 0.8,2)
+max_change_neg = round(initial_neg_num * 0.8,2)
+#max_change_pos = round(float(str(max_change_pos)[:4]),2)
+print max_change_pos
+
+amount_change = pos_num/2
+
+if pos_num % 2 != 0:
+    pos_hold.append(initial_pos_num)
+
+for i in range(amount_change):
+    change = round(random.uniform(0,max_change_pos),2)
+    updated_low = round(initial_pos_num - change,2)
+    update_high = round(initial_pos_num + change,2)
+    print change,update_high,updated_low
+    pos_hold.append(update_high)
+    pos_hold.append(updated_low)
+
+while round(sum(pos_hold),2) != 1.0:
+    print "entering while loop"
+    print sum(pos_hold)
+    if sum(pos_hold) < 1:
+        change_amount = round(random.uniform(0,max_change_pos),2)
+    else:
+        change_amount = -1 * round(random.uniform(0,max_change_pos),2)
+    random_pos_idx = random.randint(0,pos_num-1)
+    if pos_hold[random_pos_idx] <= abs(change_amount) and change_amount < 0:
+        print "CONTINUE",change_amount,pos_hold[random_pos_idx]
+        continue
+    pos_hold[random_pos_idx] = round(pos_hold[random_pos_idx] + change_amount,2)
+
+    print sum(pos_hold)
+    print "exiting?"
+
+amount_change = neg_num/2
+
+if neg_num % 2 != 0:
+    neg_hold.append(initial_neg_num)
+
+for i in range(amount_change):
+    change = round(random.uniform(0,max_change_neg),2)
+    updated_low = round(initial_neg_num - change,2)
+    update_high = round(initial_neg_num + change,2)
+    print change,update_high,updated_low
+    neg_hold.append(update_high)
+    neg_hold.append(updated_low)
+
+while round(sum(neg_hold),2) != -1.0:
+    print "entering while loop BEG"
+    print sum(neg_hold)
+    if sum(neg_hold) < -1:
+        change_amount = round(random.uniform(0,max_change_neg),2)
+    else:
+        change_amount = -1 * round(random.uniform(0,max_change_neg),2)
+    random_neg_idx = random.randint(0,neg_num-1)
+    if abs(neg_hold[random_neg_idx]) <= abs(change_amount) and change_amount > 0:
+        print "CONTINUE",change_amount,neg_hold[random_neg_idx]
+        continue
+    neg_hold[random_neg_idx] = round(neg_hold[random_neg_idx] - change_amount,2)
+
+    print sum(neg_hold)
+    print "exiting?"
+
+initial_weights = pos_hold + neg_hold
+
+random.shuffle(initial_weights)
+
+initial_weights = np.asarray(initial_weights)
+
 ideal_candidate = initial_weights > 0
 anti_ideal_candidate = initial_weights <= 0
 
