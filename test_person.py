@@ -73,7 +73,10 @@ for i in range(amount_change):
 while round(sum(pos_hold),2) != 1.0:
     print "entering while loop"
     print sum(pos_hold)
-    if sum(pos_hold) < 1:
+    value_needed = 1 - round(sum(pos_hold),2) 
+    if abs(value_needed) < max_change_pos:
+        change_amount = value_needed
+    elif sum(pos_hold) < 1:
         change_amount = round(random.uniform(0,max_change_pos),2)
     else:
         change_amount = -1 * round(random.uniform(0,max_change_pos),2)
@@ -102,12 +105,15 @@ for i in range(amount_change):
 while round(sum(neg_hold),2) != -1.0:
     print "entering while loop BEG"
     print sum(neg_hold)
-    if sum(neg_hold) < -1:
+    value_needed = -1 - round(sum(neg_hold),2) 
+    if abs(value_needed) < abs(max_change_neg):
+        change_amount = value_needed
+    elif sum(neg_hold) < -1:
         change_amount = round(random.uniform(0,max_change_neg),2)
     else:
         change_amount = -1 * round(random.uniform(0,max_change_neg),2)
     random_neg_idx = random.randint(0,neg_num-1)
-    if abs(neg_hold[random_neg_idx]) <= abs(change_amount) and change_amount > 0:
+    if abs(neg_hold[random_neg_idx]) <= abs(change_amount) and change_amount < 0:
         print "CONTINUE",change_amount,neg_hold[random_neg_idx]
         continue
     neg_hold[random_neg_idx] = round(neg_hold[random_neg_idx] - change_amount,2)
@@ -115,10 +121,18 @@ while round(sum(neg_hold),2) != -1.0:
     print sum(neg_hold)
     print "exiting?"
 
+
+print sum(neg_hold)
+print sum(pos_hold)
+
 initial_weights = pos_hold + neg_hold
 
+print initial_weights
+print sum(initial_weights)
 random.shuffle(initial_weights)
 
+print initial_weights
+print sum(initial_weights)
 initial_weights = np.asarray(initial_weights)
 
 ideal_candidate = initial_weights > 0
@@ -132,6 +146,7 @@ sock.sendall(candidate_to_msg(anti_ideal_candidate))
 for i in range(20):
     # 7 char weights + commas + exclamation
     data = sock.recv(8*num_attr)
+    print data
     print('%d: Received guess = %r' % (i, data))
     assert data[-1] == '\n'
     sock.send(floats_to_msg2(initial_weights))
